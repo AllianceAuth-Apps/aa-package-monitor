@@ -5,5 +5,5 @@ and outstanding updates for Alliance Auth.
 # pylint: disable=invalid-name
 default_app_config = "package_monitor.apps.PackageMonitorConfig"
 
-__version__ = "1.17.2"
+__version__ = "1.17.3a1"
 __title__ = "Package Monitor"

@@ -111,6 +111,7 @@ class TestFetchRelevantPackages(NoSocketsTestCase):
         dist_alpha = MetadataDistributionStubFactory(name="alpha")
         bad_dist = mock.Mock()
         bad_dist.metadata = {}
+        bad_dist.files = ["dummy.py"]
         bad_dist.name = "Bad Boy"
         mock_distributions.return_value = [bad_dist, dist_alpha]
         # when

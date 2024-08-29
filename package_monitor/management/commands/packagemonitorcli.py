@@ -1,5 +1,6 @@
 """CLI commands for Package Monitor."""
 
+import datetime as dt
 import json
 import sys
 
@@ -33,7 +34,7 @@ class Command(BaseCommand):
         )
         dump = subparsers.add_parser(
             "dump",
-            help="Dump a list of all installed packages to stdout",
+            help="Dump a list of all installed distribution packages and current import paths to stdout",
         )
         dump.add_argument(
             "-f",
@@ -70,7 +71,8 @@ class Command(BaseCommand):
             raise NotImplementedError(command)
 
     def dump(self, format: str, show_all: bool, resolve_files: bool):
-        distributions = {}
+        duplicates = 0
+        packages = {}
         for i, d in enumerate(importlib_metadata.distributions(), start=1):
             if resolve_files:
                 files = [str(f.locate()) for f in d.files]
@@ -91,15 +93,31 @@ class Command(BaseCommand):
             }
             k = d._normalized_name
             while True:
-                if k not in distributions:
+                if k not in packages:
                     break
                 k += "_"
                 x["duplicate"] = True
-            distributions[k] = x
+                duplicates += 1
+            packages[k] = x
 
         import_paths = [p for p in sys.path]
         import_paths.sort()
-        data = {"import_paths": import_paths, "distributions": distributions}
+        data = {
+            "_meta": {
+                "package_monitor_version": __version__,
+                "package_count": len(packages),
+                "import_path_count": len(import_paths),
+                "duplicate_count": duplicates,
+                "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(
+                    timespec="seconds"
+                ),
+            },
+            "_python": {
+                "import_paths": import_paths,
+                "version": sys.version,
+            },
+            "packages": packages,
+        }
 
         if format == "json":
             o = json.dumps(data, sort_keys=True, indent=4)

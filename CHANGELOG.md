@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Dump command can now also resolve the paths of all distribution files
+- Dump command now also shows useful meta information incl. the total count of duplicates
 
 ### Changed
 

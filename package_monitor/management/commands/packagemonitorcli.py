@@ -38,9 +38,9 @@ class Command(BaseCommand):
         dump.add_argument(
             "-f",
             "--format",
-            default="json",
+            default="yaml",
             choices=["json", "yaml"],
-            help="Data format",
+            help="Data format. (Default: yaml)",
         )
         dump.add_argument(
             "-a",
@@ -48,21 +48,34 @@ class Command(BaseCommand):
             action="store_true",
             help=f"Include these normally omitted metadata fields: {EXCLUDED_FIELDS}",
         )
+        dump.add_argument(
+            "-r",
+            "--resolve",
+            action="store_true",
+            help="Resolve paths for all files",
+        )
         subparsers.add_parser("refresh", help="Refresh distribution packages")
 
     def handle(self, *args, **options):
         command = options[COMMAND]
         if command == "dump":
-            self.dump(options["format"], options["all"])
+            self.dump(
+                format=options["format"],
+                show_all=options["all"],
+                resolve_files=options["resolve"],
+            )
         elif command == "refresh":
             self.refresh()
         else:
             raise NotImplementedError(command)
 
-    def dump(self, format: str, show_all: bool):
+    def dump(self, format: str, show_all: bool, resolve_files: bool):
         distributions = {}
         for i, d in enumerate(importlib_metadata.distributions(), start=1):
-            files = [str(f.locate()) for f in d.files]
+            if resolve_files:
+                files = [str(f.locate()) for f in d.files]
+            else:
+                files = [str(f) for f in d.files]
             metadata = d.metadata.json
             if not show_all and isinstance(metadata, dict):
                 metadata = {
@@ -91,8 +104,6 @@ class Command(BaseCommand):
         if format == "json":
             o = json.dumps(data, sort_keys=True, indent=4)
         elif format == "yaml":
-            if not yaml:
-                raise RuntimeError("PyYAMML not found.")
             o = yaml.dump(data)
         else:
             raise NotImplementedError(format)

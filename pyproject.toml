@@ -33,6 +33,7 @@ dependencies = [
     "packaging>=22",
     "recurrent>=0.4.1",
     "python-dateutil>=2.9",
+    "PyYAML",
 ]
 
 [project.urls]

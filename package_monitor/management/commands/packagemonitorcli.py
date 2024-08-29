@@ -9,6 +9,7 @@ import importlib_metadata
 from django.core.management.base import BaseCommand, CommandParser
 
 from package_monitor import __title__, __version__
+from package_monitor.core import distribution_packages
 from package_monitor.models import Distribution
 
 try:
@@ -18,8 +19,8 @@ except ImportError:
 
 COMMAND = "command"
 
-EXCLUDED_FIELDS = {"description", "description_content_type", "license"}
-"""Fields excluded by default in the dump command. But can be included with the --all flag."""
+EXCLUDED_METADATA_FIELDS = {"description", "description_content_type", "license"}
+"""Metadata fields excluded by default in the dump command."""
 
 
 class Command(BaseCommand):
@@ -44,14 +45,21 @@ class Command(BaseCommand):
             help="Data format. (Default: yaml)",
         )
         dump.add_argument(
-            "-a",
-            "--all",
+            "--all-meta-fields",
             action="store_true",
-            help=f"Include these normally omitted metadata fields: {EXCLUDED_FIELDS}",
+            help=f"Do not exclude any metadata fields. By default these are not included: {EXCLUDED_METADATA_FIELDS}",
+        )
+        dump.add_argument(
+            "--all-import-paths",
+            action="store_true",
+            help=(
+                "Do not exclude any import paths. "
+                f"By default these are not included: {distribution_packages.EXCLUDED_IMPORT_PATHS}"
+            ),
         )
         dump.add_argument(
             "-r",
-            "--resolve",
+            "--resolve-files",
             action="store_true",
             help="Resolve paths for all files",
         )
@@ -62,28 +70,41 @@ class Command(BaseCommand):
         if command == "dump":
             self.dump(
                 format=options["format"],
-                show_all=options["all"],
-                resolve_files=options["resolve"],
+                all_meta_fields=options["all_meta_fields"],
+                all_import_paths=options["all_import_paths"],
+                resolve_files=options["resolve_files"],
             )
         elif command == "refresh":
             self.refresh()
         else:
             raise NotImplementedError(command)
 
-    def dump(self, format: str, show_all: bool, resolve_files: bool):
-        duplicates = 0
+    def dump(
+        self,
+        format: str,
+        all_meta_fields: bool,
+        resolve_files: bool,
+        all_import_paths: bool,
+    ):
+        if all_import_paths:
+            import_paths = sys.path
+        else:
+            import_paths = distribution_packages.relevant_import_paths()
+        duplicate_count = 0
         packages = {}
-        for i, d in enumerate(importlib_metadata.distributions(), start=1):
+        for d in importlib_metadata.distributions(path=import_paths):
             if resolve_files:
                 files = [str(f.locate()) for f in d.files]
             else:
                 files = [str(f) for f in d.files]
             metadata = d.metadata.json
-            if not show_all and isinstance(metadata, dict):
+            if not all_meta_fields and isinstance(metadata, dict):
                 metadata = {
-                    k: v for k, v in metadata.items() if k not in EXCLUDED_FIELDS
+                    k: v
+                    for k, v in metadata.items()
+                    if k not in EXCLUDED_METADATA_FIELDS
                 }
-            x = {
+            package = {
                 "name": d.name,
                 "normalized_name": d._normalized_name,
                 "version": d.version,
@@ -91,23 +112,22 @@ class Command(BaseCommand):
                 "files": files,
                 "metadata": metadata,
             }
-            k = d._normalized_name
+            name = d._normalized_name
             while True:
-                if k not in packages:
+                if name not in packages:
                     break
-                k += "_"
-                x["duplicate"] = True
-                duplicates += 1
-            packages[k] = x
+                name += "_"
+                package["duplicate"] = True
+                duplicate_count += 1
+            packages[name] = package
 
-        import_paths = [p for p in sys.path]
         import_paths.sort()
         data = {
             "_meta": {
                 "package_monitor_version": __version__,
                 "package_count": len(packages),
                 "import_path_count": len(import_paths),
-                "duplicate_count": duplicates,
+                "duplicate_count": duplicate_count,
                 "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(
                     timespec="seconds"
                 ),

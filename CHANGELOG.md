@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Exclude setuptools/_vendored import paths from dump command by default
+- Exclude `/path-to/setuptools/_vendored` import paths from dump command by default
 
 ## [1.19.0] - 2024-08-29
 

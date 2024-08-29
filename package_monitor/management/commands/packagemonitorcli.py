@@ -122,8 +122,14 @@ class Command(BaseCommand):
             packages[name] = package
 
         import_paths.sort()
+        excluded_fields = list(EXCLUDED_METADATA_FIELDS)
+        excluded_fields.sort()
+        excluded_paths = [p for p in sys.path if p not in set(import_paths)]
+        excluded_paths.sort()
         data = {
             "_meta": {
+                "excluded_metadata_fields": excluded_fields,
+                "excluded_import_paths": excluded_paths,
                 "package_monitor_version": __version__,
                 "package_count": len(packages),
                 "import_path_count": len(import_paths),

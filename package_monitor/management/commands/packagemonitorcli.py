@@ -1,6 +1,8 @@
-"""Commands for Package Monitor."""
+"""CLI commands for Package Monitor."""
 
+import datetime as dt
 import json
+import sys
 
 import importlib_metadata
 
@@ -32,14 +34,14 @@ class Command(BaseCommand):
         )
         dump = subparsers.add_parser(
             "dump",
-            help="Dump a list of all installed packages to stdout",
+            help="Dump a list of all installed distribution packages and current import paths to stdout",
         )
         dump.add_argument(
             "-f",
             "--format",
-            default="json",
+            default="yaml",
             choices=["json", "yaml"],
-            help="Data format",
+            help="Data format. (Default: yaml)",
         )
         dump.add_argument(
             "-a",
@@ -47,21 +49,35 @@ class Command(BaseCommand):
             action="store_true",
             help=f"Include these normally omitted metadata fields: {EXCLUDED_FIELDS}",
         )
+        dump.add_argument(
+            "-r",
+            "--resolve",
+            action="store_true",
+            help="Resolve paths for all files",
+        )
         subparsers.add_parser("refresh", help="Refresh distribution packages")
 
     def handle(self, *args, **options):
         command = options[COMMAND]
         if command == "dump":
-            self.dump(options["format"], options["all"])
+            self.dump(
+                format=options["format"],
+                show_all=options["all"],
+                resolve_files=options["resolve"],
+            )
         elif command == "refresh":
             self.refresh()
         else:
             raise NotImplementedError(command)
 
-    def dump(self, format: str, show_all: bool):
-        distributions = {}
+    def dump(self, format: str, show_all: bool, resolve_files: bool):
+        duplicates = 0
+        packages = {}
         for i, d in enumerate(importlib_metadata.distributions(), start=1):
-            files = [str(f) for f in d.files]
+            if resolve_files:
+                files = [str(f.locate()) for f in d.files]
+            else:
+                files = [str(f) for f in d.files]
             metadata = d.metadata.json
             if not show_all and isinstance(metadata, dict):
                 metadata = {
@@ -77,18 +93,36 @@ class Command(BaseCommand):
             }
             k = d._normalized_name
             while True:
-                if k not in distributions:
+                if k not in packages:
                     break
                 k += "_"
                 x["duplicate"] = True
-            distributions[k] = x
+                duplicates += 1
+            packages[k] = x
+
+        import_paths = [p for p in sys.path]
+        import_paths.sort()
+        data = {
+            "_meta": {
+                "package_monitor_version": __version__,
+                "package_count": len(packages),
+                "import_path_count": len(import_paths),
+                "duplicate_count": duplicates,
+                "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(
+                    timespec="seconds"
+                ),
+            },
+            "_python": {
+                "import_paths": import_paths,
+                "version": sys.version,
+            },
+            "packages": packages,
+        }
 
         if format == "json":
-            o = json.dumps(distributions, sort_keys=True, indent=4)
+            o = json.dumps(data, sort_keys=True, indent=4)
         elif format == "yaml":
-            if not yaml:
-                raise RuntimeError("PyYAMML not found.")
-            o = yaml.dump(distributions)
+            o = yaml.dump(data)
         else:
             raise NotImplementedError(format)
         self.stdout.write(o)

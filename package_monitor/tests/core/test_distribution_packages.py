@@ -15,6 +15,7 @@ from package_monitor.core.distribution_packages import (
     gather_protected_packages_versions,
     is_marker_valid,
     is_version_in_specifiers,
+    relevant_import_paths,
     to_version_or_none,
 )
 from package_monitor.tests.factories import (
@@ -650,3 +651,11 @@ class TestIsVersionInSpecifiers(NoSocketsTestCase):
         for v, s, expected in cases:
             with self.subTest(case=s):
                 self.assertEqual(is_version_in_specifiers(v, s), expected)
+
+
+class TestRelevantImportPaths(NoSocketsTestCase):
+    @mock.patch(MODULE_PATH + ".EXCLUDED_IMPORT_PATHS", {"/path3"})
+    @mock.patch(MODULE_PATH + ".sys.path", ["/path1/path2", "/path1/path3"])
+    def test_x(self):
+        x = relevant_import_paths()
+        self.assertNotIn("/path3", x)

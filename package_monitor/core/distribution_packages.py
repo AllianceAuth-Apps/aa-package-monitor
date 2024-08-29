@@ -29,6 +29,9 @@ from .pypi import fetch_project_from_pypi_async, fetch_pypi_releases
 
 logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
+EXCLUDED_IMPORT_PATHS = {"/setuptools/_vendor"}
+"""Exclude package from these import paths (check against ending)."""
+
 
 @dataclass
 class DistributionPackage:
@@ -278,9 +281,8 @@ def gather_distribution_packages() -> Dict[str, DistributionPackage]:
     # The setuptools installation has it's own copy of packages.
     # To prevent importlib_metadata from reporting them as an installed package
     # in the current environment we need to exclude them
-    paths = [p for p in sys.path if not p.endswith("setuptools/_vendor")]
     packages = {}
-    for dist in importlib_metadata.distributions(path=paths):
+    for dist in importlib_metadata.distributions(path=relevant_import_paths()):
         try:
             if not dist.name:
                 continue
@@ -404,3 +406,10 @@ def gather_protected_packages_versions(
         if name in focus_names
     }
     return result
+
+
+def relevant_import_paths() -> List[str]:
+    """Return list of relevant import paths."""
+    return [
+        p for p in sys.path if not any(p.endswith(x) for x in EXCLUDED_IMPORT_PATHS)
+    ]

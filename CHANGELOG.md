@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.19.1] - 2024-08-29
+
+### Changed
+
+- Exclude `/path-to/setuptools/_vendored` import paths from dump command by default
+
 ## [1.19.0] - 2024-08-29
 
 ### Added

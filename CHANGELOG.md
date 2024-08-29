@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.19.0] - 2024-08-29
+
+### Added
+
+- Dump command can now also resolve the paths of all distribution files
+
+### Changed
+
+- Dump command now defaults to the YAML format
+
 ## [1.18.0] - 2024-08-29
 
 ### Added

@@ -61,7 +61,7 @@ class Command(BaseCommand):
     def dump(self, format: str, show_all: bool):
         distributions = {}
         for i, d in enumerate(importlib_metadata.distributions(), start=1):
-            files = [str(f) for f in d.files]
+            files = [str(f.locate()) for f in d.files]
             metadata = d.metadata.json
             if not show_all and isinstance(metadata, dict):
                 metadata = {

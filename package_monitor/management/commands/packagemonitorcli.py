@@ -1,6 +1,7 @@
-"""Commands for Package Monitor."""
+"""CLI commands for Package Monitor."""
 
 import json
+import sys
 
 import importlib_metadata
 
@@ -83,12 +84,16 @@ class Command(BaseCommand):
                 x["duplicate"] = True
             distributions[k] = x
 
+        import_paths = [p for p in sys.path]
+        import_paths.sort()
+        data = {"import_paths": import_paths, "distributions": distributions}
+
         if format == "json":
-            o = json.dumps(distributions, sort_keys=True, indent=4)
+            o = json.dumps(data, sort_keys=True, indent=4)
         elif format == "yaml":
             if not yaml:
                 raise RuntimeError("PyYAMML not found.")
-            o = yaml.dump(distributions)
+            o = yaml.dump(data)
         else:
             raise NotImplementedError(format)
         self.stdout.write(o)

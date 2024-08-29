@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.18.0] - 2024-08-29
+
+### Added
+
+- Command to dump the list of all installed Python packages. Call with `python manage.py packagemonitorcli dump`.
+
+### Changed
+
+- Consolidated management command `package-monitor-refresh` into `packagemonitorcli refresh`.
+
 ## [1.17.3] - 2024-07-23
 
 ### Fixed

@@ -183,8 +183,10 @@ Can access this app and view | User can access the app and also request updates 
 
 ## Management Commands
 
-The following management commands are included in this app:
+This app also provides a CLI tool. This tool gives you access to additional features, which are meant to support admins  support with analyzing potential issues.
 
-Command | Description
--- | --
-`package_monitor_refresh`| Refreshes all data about distribution packages. This command does functionally the same as the hourly update and is helpful to use after you have completed updating outdated packages to quickly see the result of your actions on the website.
+Please run the following command to see all available features:
+
+```sh
+python manage.py packagemonitorcli -h
+```

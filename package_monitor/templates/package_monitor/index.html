@@ -60,7 +60,7 @@
             </button>
         </span>
 
-        <ul class="nav nav-tabs" role="tablist">
+        <ul class="nav nav-tabs border-bottom-0" role="tablist">
             <li role="presentation" class="nav-item">
                 <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
                     {% translate "All" %}&nbsp;({{ all_count|default:"-" }})
@@ -207,8 +207,8 @@
 
                 rowCallback: (row, data, index) => {
                     if (data['is_outdated']) {
-                        $(row).find('td:eq(1)').addClass('warning')
-                        $(row).find('td:eq(2)').addClass('warning')
+                        $(row).find('td:eq(1)').addClass('table-warning')
+                        $(row).find('td:eq(2)').addClass('table-warning')
                         $(row).find('td:eq(2)').css('font-weight', 'bold')
                     }
                 }

@@ -6,61 +6,6 @@
 
 {% block header_nav_brand %}{{ app_title }}{% endblock %}
 
-{% block header_nav_collapse_left %}
-    <li role="presentation" class="nav-item">
-        <a
-            class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}"
-            href="{% url 'package_monitor:index' %}?filter=all"
-        >
-            {% translate "All" %} ({{ all_count|default:"-" }})
-        </a>
-    </li>
-
-    <li role="presentation" class="nav-item">
-        <a
-            class="nav-link{% if filter == 'current' %} active{% endif %}"
-            href="{% url 'package_monitor:index' %}?filter=current"
-        >
-            {% translate "Current" %} ({{ current_count|default:"-" }})
-        </a>
-    </li>
-
-    <li role="presentation" class="nav-item">
-        <a
-            class="nav-link{% if filter == 'outdated' %} active{% endif %}"
-            href="{% url 'package_monitor:index' %}?filter=outdated"
-        >
-            {% translate "Update available" %} ({{ outdated_count|default:"-" }})
-        </a>
-    </li>
-
-    <li role="presentation" class="nav-item">
-        <a
-            class="nav-link dotted_underline{% if filter == 'unknown' %} active{% endif %}"
-            href="{% url 'package_monitor:index' %}?filter=unknown"
-            title="{% translate 'No information about new release available on PyPI' %}"
-        >
-            {% translate 'No Info' %} ({{ unknown_count|default:"-" }})
-        </a>
-    </li>
-{% endblock %}
-
-{% block header_nav_collapse_right %}
-    <span class="nav-link">
-        {% translate "not yet" as never_text %}
-        {% translate 'Last updated' %} {{ updated_at|naturaltime|default_if_none:never_text }}
-    </span>
-    <button
-        type="button"
-        class="btn btn-success"
-        data-bs-toggle="modal"
-        data-bs-target="#modalRefreshingDistributions"
-        title="{% translate 'Refresh data now' %}"
-    >
-        <i class="fas fa-sync"></i>
-    </button>
-{% endblock %}
-
 {% block content %}
     {% include "framework/header/page-header.html" with title=page_title %}
 

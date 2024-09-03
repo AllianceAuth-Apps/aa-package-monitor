@@ -1,5 +1,6 @@
 {% extends "package_monitor/base.html" %}
 
+{% load humanize %}
 {% load i18n %}
 {% load static %}
 
@@ -26,13 +27,13 @@
                     <div id="modalLoadInfo">
                         {% if NIGHT_MODE %}
                             <img
-                                src="{% static 'package_monitor/images/Spinner-1s-64px-dark.gif' %}"
-                                alt="Loading Data"
+                                    src="{% static 'package_monitor/images/Spinner-1s-64px-dark.gif' %}"
+                                    alt="Loading Data"
                             >
                         {% else %}
                             <img
-                                src="{% static 'package_monitor/images/Spinner-1s-64px-light.gif' %}"
-                                alt="Loading Data"
+                                    src="{% static 'package_monitor/images/Spinner-1s-64px-light.gif' %}"
+                                    alt="Loading Data"
                             >
                         {% endif %}
 
@@ -45,7 +46,47 @@
         </div>
     </div>
 
-    <div class="card card-default card-tabs">
+    <div class="clearfix">
+        <span class="float-end">
+            {% translate "not yet" as never_text %}
+            {% translate 'Last updated' %} {{ updated_at|naturaltime|default_if_none:never_text }}&nbsp;&nbsp;
+            <button
+                    type="button"
+                    class="btn btn-success btn-tabs"
+                    data-toggle="modal"
+                    data-target="#modalRefreshingDistributions"
+                    title="{% translate 'Refresh data now' %}">
+                <i class="fas fa-sync"></i>
+            </button>
+        </span>
+
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="nav-item">
+                <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
+                    {% translate "All" %}&nbsp;({{ all_count|default:"-" }})
+                </a>
+            </li>
+            <li role="presentation" class="nav-item">
+                <a class="nav-link{% if filter == 'current' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=current">
+                    {% translate "Current" %}&nbsp;({{ current_count|default:"-" }})
+                </a>
+            </li>
+            <li role="presentation" class="nav-item">
+                <a class="nav-link{% if filter == 'outdated' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=outdated">
+                    {% translate "Update available" %}&nbsp;({{ outdated_count|default:"-" }})
+                </a>
+            </li>
+            <li role="presentation" class="nav-item">
+                <a class="nav-link{% if filter == 'unknown' %} active{% endif %}"  class="dotted_underline"
+                    href="{% url 'package_monitor:index' %}?filter=unknown"
+                    title="{% translate 'No information about new release available on PyPI' %}">
+                    {% translate 'No Info' %}&nbsp;({{ unknown_count|default:"-" }})
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card card-default card-tabs tab-content border-0">
         <div class="card-body">
             <div class="table-responsive mb-3">
                 <table id="tab_package_list" class="table table-striped w-100">

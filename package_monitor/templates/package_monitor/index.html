@@ -1,90 +1,96 @@
-{% extends 'package_monitor/base.html' %}
-{% load i18n %}
+{% extends "package_monitor/base.html" %}
+
 {% load humanize %}
+{% load i18n %}
 {% load static %}
 
 {% block details %}
-
-    <span class="pull-right">
-        {% translate "not yet" as never_text %}
-        {% translate 'Last updated' %} {{ updated_at|naturaltime|default_if_none:never_text }}&nbsp;&nbsp;
-        <button
-            type="button"
-            class="btn btn-success btn-tabs"
-            data-toggle="modal"
-            data-target="#modalRefreshingDistributions"
-            title="{% translate 'Refresh data now' %}">
-            <i class="fas fa-sync"></i>
-        </button>
-    </span>
-
     <!-- Modal for Refreshing Distributions -->
-    <div class="modal" id="modalRefreshingDistributions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="modalRefreshingDistributions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title" id="myModalLabel">
+                    <div class="modal-title fs-5">
                         {% translate "Refreshing distributions" %}
-                    </h4>
+                    </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
                 </div>
+
                 <div class="modal-body">
                     <p>
                         {% blocktranslate %}
                             Refreshing data for approx. {{ all_count }} distributions...
                         {% endblocktranslate %}
                     </p>
+
                     <div id="modalLoadInfo">
                         {% if NIGHT_MODE %}
                             <img
-                                src="{% static 'package_monitor/images/Spinner-1s-64px-dark.gif' %}"
-                                alt="Loading Data">
+                                    src="{% static 'package_monitor/images/Spinner-1s-64px-dark.gif' %}"
+                                    alt="Loading Data"
+                            >
                         {% else %}
                             <img
-                                src="{% static 'package_monitor/images/Spinner-1s-64px-light.gif' %}"
-                                alt="Loading Data">
+                                    src="{% static 'package_monitor/images/Spinner-1s-64px-light.gif' %}"
+                                    alt="Loading Data"
+                            >
                         {% endif %}
-                        <p class="text-muted">
 
-                        </p>
+                        <p class="text-muted"></p>
                     </div>
+
                     <div id="modalLoadError"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <ul class="nav nav-tabs">
-        <li role="presentation" class="{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %}active{% endif %}">
-            <a href="{% url 'package_monitor:index' %}?filter=all">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="nav-item">
+            <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
                 {% translate "All" %}&nbsp;({{ all_count|default:"-" }})
             </a>
         </li>
-        <li role="presentation" class="{% if filter == 'current' %}active{% endif %}">
-            <a href="{% url 'package_monitor:index' %}?filter=current">
+        <li role="presentation" class="nav-item">
+            <a class="nav-link{% if filter == 'current' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=current">
                 {% translate "Current" %}&nbsp;({{ current_count|default:"-" }})
             </a>
         </li>
-        <li role="presentation" class="{% if filter == 'outdated' %}active{% endif %}">
-            <a href="{% url 'package_monitor:index' %}?filter=outdated">
-            {% translate "Update available" %}&nbsp;({{ outdated_count|default:"-" }})
-        </a>
+        <li role="presentation" class="nav-item">
+            <a class="nav-link{% if filter == 'outdated' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=outdated">
+                {% translate "Update available" %}&nbsp;({{ outdated_count|default:"-" }})
+            </a>
         </li>
-        <li role="presentation" class="{% if filter == 'unknown' %}active{% endif %}">
-            <a  class="dotted_underline"
+        <li role="presentation" class="me-auto nav-item">
+            <a class="nav-link{% if filter == 'unknown' %} active{% endif %}"  class="dotted_underline"
                 href="{% url 'package_monitor:index' %}?filter=unknown"
                 title="{% translate 'No information about new release available on PyPI' %}">
                 {% translate 'No Info' %}&nbsp;({{ unknown_count|default:"-" }})
             </a>
         </li>
+        <li role="presentation" class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">
+                    {% translate "not yet" as never_text %}
+                    {% translate 'Last updated' %} {{ updated_at|naturaltime|default_if_none:never_text }}&nbsp;&nbsp;
+                </a>
+        </li>
+        <li role="presentation" class="nav-item">
+                <a
+                    class="btn btn-success"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalRefreshingDistributions"
+                    title="{% translate 'Refresh data now' %}">
+                    <i class="fas fa-sync"></i>
+                </a>
+        </li>
     </ul>
 
-    <div class="panel panel-default panel-tabs">
-        <div class="panel-body" style="min-height: 100px;">
-            <div class="table-responsive">
-                <table id="tab_package_list" class="table table-striped table-responsive-fix">
+    <div class="card card-default card-tabs tab-content border-0">
+        <div class="card-body">
+            <div class="table-responsive mb-3">
+                <table id="tab_package_list" class="table table-striped w-100">
                     <thead>
                         <tr>
                             <th
@@ -117,12 +123,13 @@
                     </thead>
                 </table>
             </div>
-            <br>
+
             <p class="text-muted">
                 {% if show_all_packages %}
                     {% translate "Shows all known distribution packages." %}
                 {% else %}
                     {% translate "Shows only distribution packages that contain an installed Django app." %}
+
                     {% if include_packages %}
                         {% translate "In addition these packages are shown:" %} {{ include_packages|join:", " }}
                     {% endif%}
@@ -133,11 +140,13 @@
                     Will show as "?" if PyPI has no info about a package.
                 {% endblocktranslate %}
             </p>
+
             {% if outdated_count %}
                 <p
                     class="copy_to_clipboard"
                     data-clipboard-text="{{ outdated_install_command }}"
-                    title="{{ outdated_install_command }}">
+                    title="{{ outdated_install_command }}"
+                >
                     {% blocktranslate %}
                         Command for installing all {{ outdated_count }} outdated packages
                     {% endblocktranslate %}
@@ -149,28 +158,28 @@
             {% endif %}
         </div>
     </div>
-
 {% endblock details %}
 
 {% block extra_javascript %}
-    {% include 'bundles/datatables-js.html' %}
-    {% include 'bundles/clipboard-js.html' %}
+    {% include "bundles/datatables-js-bs5.html" %}
+    {% include "bundles/clipboard-js.html" %}
 
-    <script type="text/javascript">
+    <script>
+        /* global ClipboardJS */
 
         /** Copy given text to the clipboard */
         const clipboard = new ClipboardJS('.copy_to_clipboard');
 
-        clipboard.on('success', function (e) {
+        clipboard.on('success', (e) => {
             e.clearSelection();
         });
 
-        clipboard.on('error', function (e) {
+        clipboard.on('error', (e) => {
             console.error('Action:', e.action);
             console.error('Trigger:', e.trigger);
         });
 
-        $(document).ready(function () {
+        $(document).ready(() => {
             /* dataTable def */
             $('#tab_package_list').DataTable({
                 ajax: {
@@ -192,24 +201,24 @@
                 info: false,
 
                 columnDefs: [
-                    { "sortable": false, "targets": [0, 1, 2, 3, 4] },
+                    { 'sortable': false, 'targets': [0, 1, 2, 3, 4] },
                 ],
 
                 paging: false,
 
-                rowCallback: function (row, data, index) {
+                rowCallback: (row, data, index) => {
                     if (data['is_outdated']) {
-                        $(row).find('td:eq(1)').addClass('warning')
-                        $(row).find('td:eq(2)').addClass('warning')
+                        $(row).find('td:eq(1)').addClass('table-warning')
+                        $(row).find('td:eq(2)').addClass('table-warning')
                         $(row).find('td:eq(2)').css('font-weight', 'bold')
                     }
                 }
-
             });
 
-            $('#modalRefreshingDistributions').on('show.bs.modal', function (event) {
-                $('#modalLoadError').html("");
+            $('#modalRefreshingDistributions').on('show.bs.modal', (event) => {
+                $('#modalLoadError').html('');
                 $('#modalLoadInfo').show();
+
                 $.get('{% url "package_monitor:refresh_distributions" %}')
                     .done(() => {
                         window.location.reload(true);
@@ -218,7 +227,7 @@
                         $('#modalLoadInfo').hide();
                         console.log(jqXHR);
                         $('#modalLoadError').html(
-                            '<p class="text-danger">An unexpected error occured: '
+                            '<p class="text-danger">An unexpected error occurred: '
                             + jqXHR.status
                             + ' '
                             + jqXHR.statusText
@@ -232,11 +241,8 @@
 {% endblock extra_javascript %}
 
 {% block extra_css %}
-    {% include 'bundles/datatables-css.html' %}
+    {% include 'bundles/datatables-css-bs5.html' %}
 
-    <link rel="stylesheet" href="{% static 'package_monitor/css/global.css' %}" type="text/css" media="screen">
-    <link rel="stylesheet" href="{% static 'package_monitor/css/package_list.css' %}" type="text/css" media="screen">
+    <link rel="stylesheet" href="{% static 'package_monitor/css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'package_monitor/css/package_list.css' %}">
 {% endblock extra_css %}
-
-{% block extra_script %}
-{% endblock extra_script %}

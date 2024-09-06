@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [2.0.0] - 2024-09-06
 
->**IMPORTANT**<br>This release requires Alliance Auth 4+ and will no longer work with older versions of Alliance Auth.
+>**IMPORTANT**<br>This release requires Alliance Auth 4.0+ and will not work with older versions of Alliance Auth.
 
 ### Changed
 
-- Adopted the AA4 templates.
+- Fully migrated to BS5 templates. Thank you @ppfeufer for your contribution.
+- Dropped support for AA3
 
 ## [1.19.1] - 2024-08-29
 

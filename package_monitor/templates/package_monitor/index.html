@@ -46,45 +46,46 @@
         </div>
     </div>
 
-    <div class="clearfix">
-        <span class="float-end">
-            {% translate "not yet" as never_text %}
-            {% translate 'Last updated' %} {{ updated_at|naturaltime|default_if_none:never_text }}&nbsp;&nbsp;
-            <button
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="nav-item">
+            <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
+                {% translate "All" %}&nbsp;({{ all_count|default:"-" }})
+            </a>
+        </li>
+        <li role="presentation" class="nav-item">
+            <a class="nav-link{% if filter == 'current' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=current">
+                {% translate "Current" %}&nbsp;({{ current_count|default:"-" }})
+            </a>
+        </li>
+        <li role="presentation" class="nav-item">
+            <a class="nav-link{% if filter == 'outdated' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=outdated">
+                {% translate "Update available" %}&nbsp;({{ outdated_count|default:"-" }})
+            </a>
+        </li>
+        <li role="presentation" class="me-auto nav-item">
+            <a class="nav-link{% if filter == 'unknown' %} active{% endif %}"  class="dotted_underline"
+                href="{% url 'package_monitor:index' %}?filter=unknown"
+                title="{% translate 'No information about new release available on PyPI' %}">
+                {% translate 'No Info' %}&nbsp;({{ unknown_count|default:"-" }})
+            </a>
+        </li>
+        <li role="presentation" class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">
+                    {% translate "not yet" as never_text %}
+                    {% translate 'Last updated' %} {{ updated_at|naturaltime|default_if_none:never_text }}&nbsp;&nbsp;
+                </a>
+        </li>
+        <li role="presentation" class="nav-item">
+                <a
+                    class="btn btn-success"
                     type="button"
-                    class="btn btn-success btn-tabs"
-                    data-toggle="modal"
-                    data-target="#modalRefreshingDistributions"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalRefreshingDistributions"
                     title="{% translate 'Refresh data now' %}">
-                <i class="fas fa-sync"></i>
-            </button>
-        </span>
-
-        <ul class="nav nav-tabs border-bottom-0" role="tablist">
-            <li role="presentation" class="nav-item">
-                <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
-                    {% translate "All" %}&nbsp;({{ all_count|default:"-" }})
+                    <i class="fas fa-sync"></i>
                 </a>
-            </li>
-            <li role="presentation" class="nav-item">
-                <a class="nav-link{% if filter == 'current' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=current">
-                    {% translate "Current" %}&nbsp;({{ current_count|default:"-" }})
-                </a>
-            </li>
-            <li role="presentation" class="nav-item">
-                <a class="nav-link{% if filter == 'outdated' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=outdated">
-                    {% translate "Update available" %}&nbsp;({{ outdated_count|default:"-" }})
-                </a>
-            </li>
-            <li role="presentation" class="nav-item">
-                <a class="nav-link{% if filter == 'unknown' %} active{% endif %}"  class="dotted_underline"
-                    href="{% url 'package_monitor:index' %}?filter=unknown"
-                    title="{% translate 'No information about new release available on PyPI' %}">
-                    {% translate 'No Info' %}&nbsp;({{ unknown_count|default:"-" }})
-                </a>
-            </li>
-        </ul>
-    </div>
+        </li>
+    </ul>
 
     <div class="card card-default card-tabs tab-content border-0">
         <div class="card-body">

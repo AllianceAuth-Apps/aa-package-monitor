@@ -94,7 +94,7 @@ Restart your supervisor services for Auth
 Last, but not least perform an initial data load of all distribution packages by running the following command:
 
 ```bash
-python manage.py package_monitor_refresh
+python manage.py packagemonitorcli refresh
 ```
 
 ## Updating

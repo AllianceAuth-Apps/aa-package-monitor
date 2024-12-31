@@ -11,6 +11,7 @@ import os
 from celery.schedules import crontab
 
 from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
 
 INSTALLED_APPS = [
     "allianceauth",  # needs to be on top of this list to support favicons in Django admin (see https://gitlab.com/allianceauth/allianceauth/-/issues/1301)
@@ -22,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django_celery_beat",
+    "solo",
     "bootstrapform",
     "django_bootstrap5",  # https://github.com/zostera/django-bootstrap5
     "sortedm2m",
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     "allianceauth.theme.darkly",
     "allianceauth.theme.flatly",
     "allianceauth.theme.materia",
+    "allianceauth.custom_css",
 ]
 
 SECRET_KEY = "wow I'm a really bad default secret key"
@@ -89,17 +92,20 @@ ROOT_URLCONF = "allianceauth.urls"
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, "locale/"),)
 
-LANGUAGES = (
-    ("en", "English"),
-    ("de", "German"),
-    ("es", "Spanish"),
-    ("zh-hans", "Chinese Simplified"),
-    ("ru", "Russian"),
-    ("ko", "Korean"),
-    ("fr", "French"),
-    ("ja", "Japanese"),
-    ("it", "Italian"),
-    ("uk", "Ukrainian"),
+LANGUAGES = (  # Sorted by Language Code alphabetical order + English at top
+    ("en", _("English")),
+    # ("cs-cz", _("Czech")), #Not yet at 50% translated
+    ("de", _("German")),
+    ("es", _("Spanish")),
+    ("it-it", _("Italian")),
+    ("ja", _("Japanese")),
+    ("ko-kr", _("Korean")),
+    ("fr-fr", _("French")),
+    ("nl-nl", _("Dutch")),
+    ("pl-pl", _("Polish")),
+    ("ru", _("Russian")),
+    ("uk", _("Ukrainian")),
+    ("zh-hans", _("Simplified Chinese")),
 )
 
 TEMPLATES = [
@@ -175,7 +181,7 @@ MESSAGE_TAGS = {messages.ERROR: "danger error"}
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",  # change the 1 here to change the database used
+        "LOCATION": "redis://127.0.0.1:6379/1",  # change the 1 here for the DB used
     }
 }
 
@@ -207,6 +213,8 @@ LOGOUT_REDIRECT_URL = "authentication:dashboard"  # destination after logging ou
 
 # scopes required on new tokens when logging in. Cannot be blank.
 LOGIN_TOKEN_SCOPES = ["publicData"]
+
+EMAIL_TIMEOUT = 15
 
 # number of days email verification links are valid for
 ACCOUNT_ACTIVATION_DAYS = 1

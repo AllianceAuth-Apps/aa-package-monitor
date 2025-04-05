@@ -7,7 +7,9 @@
 {% block header_nav_brand %}{{ app_title }}{% endblock %}
 
 {% block header_nav_user_character_control %}
-    <div class="vr"></div>
-{% endblock header_nav_user_character_control %}
+    {% comment %}
+        Leave empty to remove user control nav items for this app
+    {% endcomment %}
+{% endblock %}
 
 {% block content %}{% endblock %}

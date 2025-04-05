@@ -6,7 +6,7 @@
 
 #tab_package_list tbody td {
     text-align: left;
-    vertical-align: middle;
+    vertical-align: top;
     word-wrap: break-word;
 }
 

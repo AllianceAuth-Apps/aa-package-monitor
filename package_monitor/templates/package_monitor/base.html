@@ -6,8 +6,8 @@
 
 {% block header_nav_brand %}{{ app_title }}{% endblock %}
 
-{% block content %}
-    {% include "framework/header/page-header.html" with title=page_title %}
+{% block header_nav_user_character_control %}
+    <div class="vr"></div>
+{% endblock header_nav_user_character_control %}
 
-    {% block details %}{% endblock %}
-{% endblock %}
+{% block content %}{% endblock %}

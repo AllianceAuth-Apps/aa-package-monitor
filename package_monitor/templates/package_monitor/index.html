@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block details %}
+{% block content %}
     <!-- Modal for Refreshing Distributions -->
     <div class="modal fade" id="modalRefreshingDistributions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -49,24 +49,28 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="nav-item">
             <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
-                {% translate "All" %}&nbsp;({{ all_count|default:"-" }})
+                {% translate "All Packages" %}
+                &nbsp;<span class="badge text-bg-secondary">{{ all_count }}</span>
             </a>
         </li>
         <li role="presentation" class="nav-item">
             <a class="nav-link{% if filter == 'current' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=current">
-                {% translate "Current" %}&nbsp;({{ current_count|default:"-" }})
+                {% translate "Current" %}
+                &nbsp;<span class="badge text-bg-secondary">{{ current_count }}</span>
             </a>
         </li>
         <li role="presentation" class="nav-item">
             <a class="nav-link{% if filter == 'outdated' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=outdated">
-                {% translate "Update available" %}&nbsp;({{ outdated_count|default:"-" }})
+                {% translate "Update Available" %}
+                {% if outdated_count > 0 %}&nbsp;<span class="badge text-bg-danger">{{ outdated_count }}</span>{% endif%}
             </a>
         </li>
         <li role="presentation" class="me-auto nav-item">
             <a class="nav-link{% if filter == 'unknown' %} active{% endif %}"  class="dotted_underline"
                 href="{% url 'package_monitor:index' %}?filter=unknown"
                 title="{% translate 'No information about new release available on PyPI' %}">
-                {% translate 'No Info' %}&nbsp;({{ unknown_count|default:"-" }})
+                {% translate 'Unknown packages' %}
+                {% if outdated_count > 0 %}&nbsp;<span class="badge text-bg-secondary">{{ unknown_count }}</span>{% endif%}
             </a>
         </li>
         <li role="presentation" class="nav-item">
@@ -89,6 +93,7 @@
 
     <div class="card card-default card-tabs tab-content border-0">
         <div class="card-body">
+            <h3>{{ page_title }}</h3>
             <div class="table-responsive mb-3">
                 <table id="tab_package_list" class="table table-striped w-100">
                     <thead>
@@ -158,7 +163,7 @@
             {% endif %}
         </div>
     </div>
-{% endblock details %}
+{% endblock content %}
 
 {% block extra_javascript %}
     {% include "bundles/datatables-js-bs5.html" %}

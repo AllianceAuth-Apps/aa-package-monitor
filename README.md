@@ -45,7 +45,7 @@ Features:
 
 ## Screenshots
 
-![screenshot](https://i.imgur.com/9ZMz1ji.png)
+![screenshot](https://cdn.imgpile.com/f/aTDpYjJ_xl.png)
 
 ## Installation
 

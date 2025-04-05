@@ -35,11 +35,17 @@ def index(request):
         .order_by("name")
         .build_install_command()
     )
+    page_title = {
+        "all": "All Packages",
+        "current": "Current",
+        "outdated": "Update Available",
+        "unknown": "No Information",
+    }
     context = {
         "app_title": __title__,
-        "page_title": _("Distribution packages"),
         "updated_at": updated_at,
         "filter": my_filter,
+        "page_title": page_title[my_filter],
         "all_count": distributions_qs.count(),
         "current_count": distributions_qs.filter(is_outdated=False).count(),
         "outdated_count": distributions_qs.outdated_count(),

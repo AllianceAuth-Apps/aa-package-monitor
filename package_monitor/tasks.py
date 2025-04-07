@@ -1,5 +1,7 @@
 """Tasks for Package Monitor."""
 
+from random import randint
+
 from celery import chain, shared_task
 
 from django.core.cache import cache
@@ -19,17 +21,21 @@ from .app_settings import (
 from .core import schedule
 from .models import Distribution
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 CACHE_KEY_LAST_REPORT = "package-monitor-notification-last-report"
+MAX_JITTER = 15  # Maximum random deviation for starting periodic tasks in seconds
+
+logger = LoggerAddTag(get_extension_logger(__name__), __title__)
 
 
 @shared_task(time_limit=3600)
-def update_distributions():
+def update_distributions(disable_jitter=False):
     """Run regular tasks."""
+    tasks = [update_all_distributions.si()]
     if _should_send_notifications():
-        chain(update_all_distributions.si(), send_update_notification.si()).delay()
-    else:
-        update_all_distributions.delay()
+        tasks.append(send_update_notification.si())
+
+    jitter = 0 if disable_jitter else randint(1, MAX_JITTER)
+    chain(tasks).apply_async(countdown=jitter)
 
 
 def _should_send_notifications() -> bool:

@@ -81,7 +81,7 @@ class TestUpdateDistributions(TestCase):
         # given
         should_send_notifications.return_value = True
         # when
-        tasks.update_distributions()
+        tasks.update_distributions(disable_jitter=True)
         # then
         self.assertTrue(Distribution.objects.update_all.called)
         self.assertTrue(Distribution.objects.send_update_notification.called)
@@ -92,7 +92,7 @@ class TestUpdateDistributions(TestCase):
         # given
         should_send_notifications.return_value = False
         # when
-        tasks.update_distributions()
+        tasks.update_distributions(disable_jitter=True)
         # then
         self.assertTrue(Distribution.objects.update_all.called)
         self.assertFalse(Distribution.objects.send_update_notification.called)

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [2.2.0] - TBD
+
+### Added
+
+- Periodic task now starts with a slight random delay to reduce load peak on PyPI caused by multiple installations running on the exact same time
+
 ## [2.1.0] - 2025-04-05
 
 ### Changed

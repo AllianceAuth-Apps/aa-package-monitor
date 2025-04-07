@@ -55,7 +55,7 @@ class TestUpdatePackagesFromPyPi(TestCase):
         )
 
         # when
-        tasks.update_distributions()
+        tasks.update_distributions(disable_jitter=True)
 
         # then
         self.assertEqual(Distribution.objects.count(), 1)

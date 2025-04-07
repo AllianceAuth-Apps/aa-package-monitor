@@ -1,10 +1,10 @@
 import datetime as dt
 from unittest.mock import patch
 
-from package_monitor import tasks
-
 from django.test import TestCase, override_settings
 from django.utils.timezone import now
+
+from package_monitor import tasks
 
 MODULE_PATH = "package_monitor.tasks"
 UTC = dt.timezone.utc

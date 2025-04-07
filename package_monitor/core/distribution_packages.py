@@ -305,7 +305,7 @@ def gather_distribution_packages() -> Dict[str, DistributionPackage]:
 
 
 def compile_package_requirements(
-    packages: Dict[str, DistributionPackage]
+    packages: Dict[str, DistributionPackage],
 ) -> Dict[str, Dict[str, SpecifierSet]]:
     """Consolidate requirements from all known distributions and known packages"""
     requirements = defaultdict(dict)
@@ -390,7 +390,7 @@ def determine_system_python_version() -> Version:
 
 
 def gather_protected_packages_versions(
-    packages: Dict[str, DistributionPackage]
+    packages: Dict[str, DistributionPackage],
 ) -> Dict[str, Version]:
     """Return versions of protected packages
     or empty when no protected packages are defined or matching.

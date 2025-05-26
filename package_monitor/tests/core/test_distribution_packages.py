@@ -95,9 +95,12 @@ class TestDistributionPackage(NoSocketsTestCase):
 
 
 class MyDist:
+    def __init__(self, ex: Exception):
+        self.name_excepton = ex
+
     @property
     def name(self):
-        raise KeyError()
+        raise self.name_excepton()
 
     @property
     def metadata(self):
@@ -122,8 +125,9 @@ class TestFetchRelevantPackages(NoSocketsTestCase):
 
     def test_should_ignore_corrupt_package(self, mock_distributions, mock_sys):
         dist_alpha = MetadataDistributionStubFactory(name="alpha")
-        bad_dist = MyDist()
-        mock_distributions.return_value = [bad_dist, dist_alpha]
+        bad_dist_1 = MyDist(KeyError)
+        bad_dist_2 = MyDist(TypeError)
+        mock_distributions.return_value = [bad_dist_1, dist_alpha, bad_dist_2]
         mock_sys.path = []
         # when
         result = gather_distribution_packages()

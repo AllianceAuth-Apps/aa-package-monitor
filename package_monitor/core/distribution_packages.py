@@ -286,7 +286,7 @@ def gather_distribution_packages() -> Dict[str, DistributionPackage]:
         try:
             if not dist.name:
                 continue
-        except KeyError:
+        except (KeyError, TypeError):
             logger.warning(
                 "Ignoring corrupt distribution package: %s", dist.metadata.items()
             )

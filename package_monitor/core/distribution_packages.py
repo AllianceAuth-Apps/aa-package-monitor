@@ -286,11 +286,10 @@ def gather_distribution_packages() -> Dict[str, DistributionPackage]:
         try:
             if not dist.name:
                 continue
-        except (KeyError, TypeError):
-            logger.warning(
-                "Ignoring corrupt distribution package: %s", dist.metadata.items()
-            )
+        except (KeyError, TypeError, AttributeError):
+            logger.warning("Ignoring a corrupt distribution package")
             continue
+
         obj = DistributionPackage.create_from_metadata_distribution(dist)
         name = obj.name_normalized
         if name in packages:

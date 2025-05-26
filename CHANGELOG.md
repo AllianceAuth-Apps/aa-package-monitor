@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [2.2.2] - 2025-05-26
+
+### Fixed
+
+- Gathering packages breaks when a package has no metadata
+
 ## [2.2.1] - 2025-05-26
 
 ### Fixed

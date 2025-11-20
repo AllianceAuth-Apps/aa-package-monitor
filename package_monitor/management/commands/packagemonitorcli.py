@@ -3,12 +3,15 @@
 import datetime as dt
 import json
 import sys
+from enum import Enum
 
+import humanize
 import importlib_metadata
 
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import BaseCommand, CommandError, CommandParser
+from django.db.models import QuerySet
 
-from package_monitor import __title__, __version__
+from package_monitor import __version__
 from package_monitor.core import distribution_packages
 from package_monitor.models import Distribution
 
@@ -23,8 +26,16 @@ EXCLUDED_METADATA_FIELDS = {"description", "description_content_type", "license"
 """Metadata fields excluded by default in the dump command."""
 
 
+class SubCommand(str, Enum):
+    DUMP = "dump"
+    INSTALL = "install"
+    OUTDATED = "outdated"
+    REFRESH = "refresh"
+    VERSION = "version"
+
+
 class Command(BaseCommand):
-    help = "Package monitor CLI tool"
+    help = "A tool for monitoring distribution packages from CLI."
 
     def add_arguments(self, parser: CommandParser) -> None:
         subparsers = parser.add_subparsers(
@@ -34,7 +45,7 @@ class Command(BaseCommand):
             help="available commands",
         )
         dump = subparsers.add_parser(
-            "dump",
+            SubCommand.DUMP.value,
             help="Dump a list of all installed distribution packages and current import paths to stdout",
         )
         dump.add_argument(
@@ -63,19 +74,43 @@ class Command(BaseCommand):
             action="store_true",
             help="Resolve paths for all files",
         )
-        subparsers.add_parser("refresh", help="Refresh distribution packages")
+        subparsers.add_parser(
+            SubCommand.INSTALL.value,
+            help=(
+                "Print parameters for installing outdated packages. "
+                "Usage: pip install $(python manage.py packagemonitorcli install)"
+            ),
+        )
+        subparsers.add_parser(
+            SubCommand.OUTDATED.value,
+            help="Show outdated distribution packages",
+        )
+        subparsers.add_parser(
+            SubCommand.REFRESH.value,
+            help="Refresh list of distribution packages",
+        )
+        subparsers.add_parser(
+            SubCommand.VERSION.value,
+            help="Show version of package_manager app",
+        )
 
     def handle(self, *args, **options):
         command = options[COMMAND]
-        if command == "dump":
+        if command == SubCommand.DUMP:
             self.dump(
                 format=options["format"],
                 all_meta_fields=options["all_meta_fields"],
                 all_import_paths=options["all_import_paths"],
                 resolve_files=options["resolve_files"],
             )
-        elif command == "refresh":
+        elif command == SubCommand.REFRESH:
             self.refresh()
+        elif command == SubCommand.INSTALL:
+            self.install()
+        elif command == SubCommand.OUTDATED:
+            self.outdated()
+        elif command == SubCommand.VERSION:
+            self.version()
         else:
             raise NotImplementedError(command)
 
@@ -154,19 +189,63 @@ class Command(BaseCommand):
         self.stdout.write(o)
 
     def refresh(self):
-        self.stdout.write(f"*** {__title__} v{__version__} - Refresh Distributions ***")
         package_count = Distribution.objects.count()
-        outdated_count = Distribution.objects.filter_visible().outdated_count()
         self.stdout.write(
-            f"Started to refresh data for currently {package_count} distribution packages. "
-            f"With {outdated_count} package(s) currently showing as outdated."
+            f"Started refreshing data for currently {package_count} distribution packages...."
         )
-        self.stdout.write("This can take a minute...Please wait")
         package_count = Distribution.objects.update_all()
         outdated_count = Distribution.objects.filter_visible().outdated_count()
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Completed refreshing data for {package_count} distribution packages. "
-                f"Identified {outdated_count} outdated package(s)."
-            )
+            f"{outdated_count} / {package_count} distribution packages are outdated. "
         )
+        self.stdout.write(self.style.SUCCESS("DONE"))
+
+    def outdated(self):
+        obj = Distribution.objects.first()
+        updated_at = obj.updated_at if obj else None
+        outdated_count = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .outdated_count()
+        )
+        package_count = Distribution.objects.count()
+        last_checked = humanize.naturaltime(updated_at) if updated_at else "?"
+        self.stdout.write(
+            f"{outdated_count} / {package_count} distribution packages are outdated. "
+            f"Last checked {last_checked}"
+        )
+        if outdated_count == 0:
+            return
+
+        self.stdout.write()
+        qs: QuerySet[Distribution] = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .filter(is_outdated=True)
+            .order_by("name")
+        )
+        for d in qs:
+            self.stdout.write(
+                f"{d.name} {d.latest_version} [upgradeable from: {d.latest_version}]"
+            )
+
+    def install(self):
+        outdated_count = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .outdated_count()
+        )
+        if outdated_count == 0:
+            raise CommandError("No outdated packages")
+
+        command = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .filter(is_outdated=True)
+            .order_by("name")
+            .build_install_command()
+        )
+        self.stdout.write(command)
+
+    def version(self):
+        self.stdout.write(__version__)

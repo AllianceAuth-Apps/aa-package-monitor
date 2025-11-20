@@ -43,13 +43,13 @@ class DistributionQuerySet(models.QuerySet):
 
     def build_install_command(self) -> str:
         """Build install command from all distribution packages in this query."""
-        result = "pip install"
+        result = ""
         for dist in self.exclude(latest_version=""):
             version_string = dist.pip_install_version
             if len(result) + len(version_string) + 1 > TERMINAL_MAX_LINE_LENGTH:
                 break
-            result = f"{result} {version_string}"
-        return result
+            result += f"{version_string} "
+        return result.strip()
 
     def filter_visible(self) -> models.QuerySet:
         """Filter to include visible packages only based on current settings."""

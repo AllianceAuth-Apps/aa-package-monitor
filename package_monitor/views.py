@@ -29,7 +29,7 @@ def index(request):
     if not my_filter:
         app_count = Distribution.objects.filter_visible().outdated_count()
         my_filter = "outdated" if app_count and app_count > 0 else "current"
-    outdated_install_command = (
+    outdated_install_command = "pip install " + (
         Distribution.objects.filter_visible()
         .filter(is_outdated=True)
         .order_by("name")

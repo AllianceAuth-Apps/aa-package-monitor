@@ -27,13 +27,14 @@ classifiers = [
 ]
 dependencies = [
     "allianceauth<5,>=4",
-    "allianceauth-app-utils>=1.17.1",
+    "allianceauth-app-utils>=1.30",
     "importlib_metadata",
     "aiohttp>=3.8",
     "packaging>=22",
     "recurrent>=0.4.1",
     "python-dateutil>=2.9",
     "PyYAML",
+    "humanize>=4.7",
 ]
 
 [project.urls]

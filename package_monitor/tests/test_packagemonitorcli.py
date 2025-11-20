@@ -45,15 +45,28 @@ class TestInstall(NoSocketsTestCase):
         call_command("packagemonitorcli", "install", stdout=out)
         # then
         got = out.getvalue()
-        self.assertIn("alpha==1.2.0 bravo==2.1.0", got)
+        self.assertEqual("alpha==1.2.0 bravo==2.1.0\n", got)
 
-    def test_should_show_error_when_no_outdated(self):
+    def test_should_raise_error_when_no_outdated(self):
         # given
         DistributionFactory(name="charlie", latest_version="2.1.0", is_outdated=False)
         out = StringIO()
         # when/then
         with self.assertRaises(CommandError):
             call_command("packagemonitorcli", "install", stdout=out)
+
+    @patch(PACKAGE_PATH + ".packagemonitorcli.Distribution.objects.update_all")
+    def test_can_refresh_(self, mock_update_all):
+        # given
+        mock_update_all.return_value = 0
+        DistributionFactory(name="bravo", latest_version="2.1.0", is_outdated=True)
+        out = StringIO()
+        # when
+        call_command("packagemonitorcli", "install", "-r", stdout=out)
+        # then
+        got = out.getvalue()
+        self.assertEqual("bravo==2.1.0\n", got)
+        self.assertTrue(mock_update_all.called)
 
 
 @patch(MANAGERS_PATH + ".PACKAGE_MONITOR_SHOW_ALL_PACKAGES", True)
@@ -73,6 +86,16 @@ class TestOutdated(NoSocketsTestCase):
         got = out.getvalue()
         self.assertIn("alpha", got)
         self.assertIn("bravo", got)
+        self.assertNotIn("charlie", got)
+
+    def test_should_handle_no_outdated(self):
+        # given
+        DistributionFactory(name="charlie", latest_version="2.1.0", is_outdated=False)
+        # when
+        out = StringIO()
+        call_command("packagemonitorcli", "outdated", stdout=out)
+        # then
+        got = out.getvalue()
         self.assertNotIn("charlie", got)
 
 

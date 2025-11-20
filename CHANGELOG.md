@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [2.3.0] - 2025-11-20
+
+This release improves the CLI to make it more useful for server maintenance and scripting.
+For example it is now possible to install all outstanding upgrades with a single command:
+
+```sh
+pip install $(python manage.py packagemonitorcli install)
+```
+
+### Added
+
+- Added commands to the CLI:
+  - `install`: Print parameters for installing outdated packages for usage with `pip install`.
+  - `outdated`: Show outdated distribution packages
+  - `version`: Show version of package_manager app
+
 ## [2.2.2] - 2025-05-26
 
 ### Fixed
@@ -217,7 +233,7 @@ To address this, such potentially unwanted updates can now be automatically excl
 
 ### Fixed
 
-- Fetching info from PyPI for a package breaks when requires_python contains an invalid specifer
+- Fetching info from PyPI for a package breaks when requires_python contains an invalid specifier
 
 ## [1.8.0] - 2023-01-03
 

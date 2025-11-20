@@ -240,7 +240,7 @@ class TestDistributionBuildInstallCommand(NoSocketsTestCase):
         # when
         result = Distribution.objects.order_by("name").build_install_command()
         # then
-        self.assertEqual(result, "pip install alpha==1.2.0 bravo==2.1.0")
+        self.assertEqual(result, "alpha==1.2.0 bravo==2.1.0")
 
     def test_should_stay_within_max_line_length(self):
         # given

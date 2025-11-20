@@ -21,7 +21,7 @@ An app for keeping track of installed packages and outstanding updates with Alli
 - [User Guide](#user-guide)
 - [Settings](#settings)
 - [Permissions](#permissions)
-- [Management Commands](#management-commands)
+- [CLI Tool](#cli-tool)
 - [Change Log](CHANGELOG.md)
 
 ## Overview
@@ -39,6 +39,7 @@ Features:
 - Option to show all known distribution packages (as opposed to only the ones that belong to installed Django apps)
 - Copy the respective command for a package update to your clipboard directly from the package list
 - Can automatically notify admins when there is an update available for a currently installed package
+- Key features are also available as CLI tool for easier server maintainance and scripting
 - Supported languages: English :us:, German :de: and Russian :ru:
 
 >**Hint**: Update notifications are sent as AA notifications to all admins. We recommend using [Discord Notify](https://gitlab.com/ErikKalkoken/aa-discordnotify) to automatically forward those notifications to Discord as DMs.
@@ -181,11 +182,25 @@ Name | Purpose | Code
 -- | -- | --
 Can access this app and view | User can access the app and also request updates to the list of distribution packages |  `general.basic_access`
 
-## Management Commands
+## CLI Tool
 
-This app also provides a CLI tool. This tool gives you access to additional features, which are meant to support admins  support with analyzing potential issues.
+Package Monitor also comes with a CLI tool which provides all key features trough a CLI interface. You can refresh packages, check which packages are outdated and generate the parameters for installing all outdated packages.
 
-Please run the following command to see all available features:
+For example for directly installing all outdated packages you can run:
+
+```sh
+pip install $(python manage.py packagemonitorcli install)
+```
+
+Here is an overview of all commands:
+
+- `dump`: Dump a list of all installed distribution packages and current import paths to stdout
+- `install`: Print parameters for installing outdated packages for usage with `pip install`.
+- `outdated`: Show outdated distribution packages
+- `refresh`: Refresh list of distribution packages
+- `version`: Show version of package_manager app
+
+For more information please run:
 
 ```sh
 python manage.py packagemonitorcli -h

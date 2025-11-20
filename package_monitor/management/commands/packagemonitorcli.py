@@ -1,14 +1,17 @@
-"""CLI commands for Package Monitor."""
+"""CLI tool for Package Monitor."""
 
 import datetime as dt
 import json
 import sys
+from enum import Enum
 
+import humanize
 import importlib_metadata
 
-from django.core.management.base import BaseCommand, CommandParser
+from django.core.management.base import BaseCommand, CommandError, CommandParser
+from django.db.models import QuerySet
 
-from package_monitor import __title__, __version__
+from package_monitor import __version__
 from package_monitor.core import distribution_packages
 from package_monitor.models import Distribution
 
@@ -19,12 +22,24 @@ except ImportError:
 
 COMMAND = "command"
 
+FORMAT_YAML = "yaml"
+FORMAT_JSON = "json"
+FORMAT_DEFAULT = FORMAT_YAML
+
 EXCLUDED_METADATA_FIELDS = {"description", "description_content_type", "license"}
 """Metadata fields excluded by default in the dump command."""
 
 
+class SubCommand(str, Enum):
+    DUMP = "dump"
+    INSTALL = "install"
+    OUTDATED = "outdated"
+    REFRESH = "refresh"
+    VERSION = "version"
+
+
 class Command(BaseCommand):
-    help = "Package monitor CLI tool"
+    help = "A tool for monitoring distribution packages from CLI."
 
     def add_arguments(self, parser: CommandParser) -> None:
         subparsers = parser.add_subparsers(
@@ -34,14 +49,14 @@ class Command(BaseCommand):
             help="available commands",
         )
         dump = subparsers.add_parser(
-            "dump",
+            SubCommand.DUMP.value,
             help="Dump a list of all installed distribution packages and current import paths to stdout",
         )
         dump.add_argument(
             "-f",
             "--format",
-            default="yaml",
-            choices=["json", "yaml"],
+            default=FORMAT_DEFAULT,
+            choices=[FORMAT_JSON, FORMAT_YAML],
             help="Data format. (Default: yaml)",
         )
         dump.add_argument(
@@ -63,33 +78,55 @@ class Command(BaseCommand):
             action="store_true",
             help="Resolve paths for all files",
         )
-        subparsers.add_parser("refresh", help="Refresh distribution packages")
+        install = subparsers.add_parser(
+            SubCommand.INSTALL.value,
+            help=(
+                "Print parameters for installing outdated packages. "
+                "Usage: pip install $(python manage.py packagemonitorcli install)"
+            ),
+        )
+        install.add_argument(
+            "-r",
+            "--refresh",
+            action="store_true",
+            help="When set will first refresh the list of distributions pages",
+        )
+        subparsers.add_parser(
+            SubCommand.OUTDATED.value,
+            help="Show outdated distribution packages",
+        )
+        subparsers.add_parser(
+            SubCommand.REFRESH.value,
+            help="Refresh list of distribution packages",
+        )
+        subparsers.add_parser(
+            SubCommand.VERSION.value,
+            help="Show version of package_manager app",
+        )
 
     def handle(self, *args, **options):
+        functions = {
+            SubCommand.DUMP: self.dump,
+            SubCommand.REFRESH: self.refresh,
+            SubCommand.INSTALL: self.install,
+            SubCommand.OUTDATED: self.outdated,
+            SubCommand.VERSION: self.version,
+        }
         command = options[COMMAND]
-        if command == "dump":
-            self.dump(
-                format=options["format"],
-                all_meta_fields=options["all_meta_fields"],
-                all_import_paths=options["all_import_paths"],
-                resolve_files=options["resolve_files"],
-            )
-        elif command == "refresh":
-            self.refresh()
-        else:
-            raise NotImplementedError(command)
+        try:
+            f = functions[command]
+        except KeyError:
+            raise NotImplementedError(command) from None
+        f(**options)
 
-    def dump(
-        self,
-        format: str,
-        all_meta_fields: bool,
-        resolve_files: bool,
-        all_import_paths: bool,
-    ):
-        if all_import_paths:
+    def dump(self, **options: dict):
+        if options.get("all_import_paths"):
             import_paths = sys.path
         else:
             import_paths = distribution_packages.relevant_import_paths()
+
+        all_meta_fields = bool(options.get("all_meta_fields"))
+        resolve_files = bool(options.get("resolve_files"))
         duplicate_count = 0
         packages = {}
         for d in importlib_metadata.distributions(path=import_paths):
@@ -144,29 +181,76 @@ class Command(BaseCommand):
             },
             "packages": packages,
         }
-
-        if format == "json":
+        output_format = options.get("format", FORMAT_DEFAULT)
+        if output_format == FORMAT_JSON:
             o = json.dumps(data, sort_keys=True, indent=4)
-        elif format == "yaml":
+        elif output_format == FORMAT_YAML:
             o = yaml.dump(data)
         else:
-            raise NotImplementedError(format)
+            raise NotImplementedError(output_format)
         self.stdout.write(o)
 
-    def refresh(self):
-        self.stdout.write(f"*** {__title__} v{__version__} - Refresh Distributions ***")
+    def refresh(self, **_):
         package_count = Distribution.objects.count()
-        outdated_count = Distribution.objects.filter_visible().outdated_count()
         self.stdout.write(
-            f"Started to refresh data for currently {package_count} distribution packages. "
-            f"With {outdated_count} package(s) currently showing as outdated."
+            f"Started refreshing data for currently {package_count} distribution packages...."
         )
-        self.stdout.write("This can take a minute...Please wait")
         package_count = Distribution.objects.update_all()
         outdated_count = Distribution.objects.filter_visible().outdated_count()
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Completed refreshing data for {package_count} distribution packages. "
-                f"Identified {outdated_count} outdated package(s)."
-            )
+            f"{outdated_count} / {package_count} distribution packages are outdated. "
         )
+        self.stdout.write(self.style.SUCCESS("DONE"))
+
+    def outdated(self, **_):
+        obj = Distribution.objects.first()
+        updated_at = obj.updated_at if obj else None
+        outdated_count = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .outdated_count()
+        )
+        package_count = Distribution.objects.count()
+        last_checked = humanize.naturaltime(updated_at) if updated_at else "?"
+        self.stdout.write(
+            f"{outdated_count} / {package_count} distribution packages are outdated. "
+            f"({last_checked})"
+        )
+        if outdated_count == 0:
+            return
+
+        self.stdout.write()
+        qs: QuerySet[Distribution] = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .filter(is_outdated=True)
+            .order_by("name")
+        )
+        for d in qs:
+            self.stdout.write(
+                f"{d.name} {d.latest_version} [upgradeable from: {d.latest_version}]"
+            )
+
+    def install(self, **options):
+        refresh = options.get("refresh")
+        if refresh:
+            Distribution.objects.update_all()
+        outdated_count = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .outdated_count()
+        )
+        if outdated_count == 0:
+            raise CommandError("No outdated packages")
+
+        command = (
+            Distribution.objects.filter_visible()
+            .exclude(latest_version="")
+            .filter(is_outdated=True)
+            .order_by("name")
+            .build_install_command()
+        )
+        self.stdout.write(command)
+
+    def version(self, **_):
+        self.stdout.write(__version__)

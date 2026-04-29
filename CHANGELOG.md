@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [2.4.0] - tbd
+
+## Changed
+
+- Added support for AA5
+
 ## [2.3.0] - 2025-11-20
 
 This release improves the CLI to make it more useful for server maintenance and scripting.

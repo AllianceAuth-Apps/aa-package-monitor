@@ -74,14 +74,14 @@ class DistributionManagerBase(models.Manager):
     def update_all(self) -> int:
         """Update the list of relevant distribution packages in the database."""
         logger.info(
-            f"Started refreshing approx. {self.count()} distribution packages..."
+            "Started refreshing approx. %d distribution packages...", self.count()
         )
         packages = gather_distribution_packages()
         requirements = compile_package_requirements(packages)
         update_packages_from_pypi(packages, requirements)
         self._save_packages(packages=packages, requirements=requirements)
         packages_count = len(packages)
-        logger.info(f"Completed refreshing {packages_count} distribution packages")
+        logger.info("Completed refreshing %d distribution packages", packages_count)
         return packages_count
 
     def _save_packages(

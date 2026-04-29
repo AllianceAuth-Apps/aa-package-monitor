@@ -16,9 +16,7 @@ from packaging.version import InvalidVersion, Version
 from packaging.version import parse as version_parse
 
 from allianceauth.services.hooks import get_extension_logger
-from app_utils.logging import LoggerAddTag
 
-from package_monitor import __title__
 from package_monitor.app_settings import (
     PACKAGE_MONITOR_CUSTOM_REQUIREMENTS,
     PACKAGE_MONITOR_PROTECTED_PACKAGES,
@@ -27,7 +25,7 @@ from package_monitor.app_settings import (
 from . import metadata_helpers
 from .pypi import fetch_project_from_pypi_async, fetch_pypi_releases
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = get_extension_logger(__name__)
 
 EXCLUDED_IMPORT_PATHS = {"/setuptools/_vendor"}
 """Exclude package from these import paths (check against ending)."""

@@ -8,9 +8,7 @@ from django.core.cache import cache
 from django.utils.timezone import now
 
 from allianceauth.services.hooks import get_extension_logger
-from app_utils.logging import LoggerAddTag
 
-from . import __title__
 from .app_settings import (
     PACKAGE_MONITOR_NOTIFICATIONS_ENABLED,
     PACKAGE_MONITOR_NOTIFICATIONS_MAX_DELAY,
@@ -24,7 +22,7 @@ from .models import Distribution
 CACHE_KEY_LAST_REPORT = "package-monitor-notification-last-report"
 MAX_JITTER = 15  # Maximum random deviation for starting periodic tasks in seconds
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = get_extension_logger(__name__)
 
 
 @shared_task(time_limit=3600)

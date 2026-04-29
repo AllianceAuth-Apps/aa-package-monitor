@@ -10,9 +10,7 @@ from django.db import models
 
 from allianceauth.services.hooks import get_extension_logger
 from app_utils.allianceauth import notify_admins
-from app_utils.logging import LoggerAddTag
 
-from . import __title__
 from .app_settings import (
     PACKAGE_MONITOR_EXCLUDE_PACKAGES,
     PACKAGE_MONITOR_INCLUDE_PACKAGES,
@@ -31,7 +29,7 @@ if TYPE_CHECKING:
 
 TERMINAL_MAX_LINE_LENGTH = 4095
 
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = get_extension_logger(__name__)
 
 
 class DistributionQuerySet(models.QuerySet):

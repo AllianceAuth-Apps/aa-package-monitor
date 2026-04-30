@@ -35,10 +35,8 @@ test:
   image: python:3.$PYTHON_VERSION-bookworm
   parallel:
     matrix:
-    - DJANGO_VERSION: [42]
-      PYTHON_VERSION: [8, 9, 10, 11, 12]
-    - DJANGO_VERSION: [52]
-      PYTHON_VERSION: [12]
+      - DJANGO_VERSION: [42, 52]
+        PYTHON_VERSION: [10, 11, 12]
   script:
     - tox -e py3$PYTHON_VERSION-django$DJANGO_VERSION
     - bash <(curl -s https://codecov.io/bash)

@@ -20,9 +20,13 @@ class TestShouldSendNotifications(TestCase):
         last_report = (dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=UTC),)
         cache_get.return_value = last_report
         # when
-        with patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_ENABLED", True), patch(
-            MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_SCHEDULE", "my schedule"
-        ), patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_MAX_DELAY", 42):
+        with (
+            patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_ENABLED", True),
+            patch(
+                MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_SCHEDULE", "my schedule"
+            ),
+            patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_MAX_DELAY", 42),
+        ):
             result = tasks._should_send_notifications()
         # then
         self.assertTrue(result)
@@ -59,9 +63,10 @@ class TestShouldSendNotifications(TestCase):
 class TestSendUpdateNotifications(TestCase):
     def test_can_send_notifications(self, send_update_notification, cache_set):
         # when
-        with patch(
-            MODULE_PATH + ".PACKAGE_MONITOR_SHOW_EDITABLE_PACKAGES", False
-        ), patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_REPEAT", False):
+        with (
+            patch(MODULE_PATH + ".PACKAGE_MONITOR_SHOW_EDITABLE_PACKAGES", False),
+            patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_REPEAT", False),
+        ):
             tasks.send_update_notification()
         # then
         self.assertTrue(send_update_notification.called)

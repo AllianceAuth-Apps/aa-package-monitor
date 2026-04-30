@@ -10,11 +10,8 @@ from packaging.version import Version
 from django.core.cache import cache
 
 from allianceauth.services.hooks import get_extension_logger
-from app_utils.logging import LoggerAddTag
 
-from package_monitor import __title__
-
-logger = LoggerAddTag(get_extension_logger(__name__), __title__)
+logger = get_extension_logger(__name__)
 
 BASE_URL = "https://pypi.org/pypi"
 CACHE_TIMEOUT = 3600 * 24

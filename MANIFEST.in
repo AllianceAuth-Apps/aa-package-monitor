@@ -1,6 +1,0 @@
-include LICENSE
-include README.md
-recursive-include package_monitor *.py
-recursive-include package_monitor/static *
-recursive-include package_monitor/templates *
-recursive-include package_monitor/tests *

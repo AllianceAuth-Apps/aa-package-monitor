@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [3.0.0a1] - 2026-05-30
+
+This release is a major update with breaking changes.
+It adds support for AA5 and now requires Python 3.10 or higher.
+
+## Changed
+
+- BREAKING CHANGE: Removed support for Python 3.8
+- BREAKING CHANGE: Removed support for Python 3.9
+- Added support for AA5
+
 ## [2.3.0] - 2025-11-20
 
 This release improves the CLI to make it more useful for server maintenance and scripting.

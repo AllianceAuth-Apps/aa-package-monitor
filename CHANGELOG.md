@@ -7,12 +7,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
-## [3.0.0a1] - 2026-05-30
+## [3.0.0] - 2026-05-11
 
 This release is a major update with breaking changes.
 It adds support for AA5 and now requires Python 3.10 or higher.
 
-## Changed
+### Changed
+
+- BREAKING CHANGE: Removed support for Python 3.8
+- BREAKING CHANGE: Removed support for Python 3.9
+- Added support for AA5
+
+### Fixed
+
+- Shows package count as zero when no packages in database
+
+## [3.0.0a1] - 2026-04-30
+
+This release is a major update with breaking changes.
+It adds support for AA5 and now requires Python 3.10 or higher.
+
+### Changed
 
 - BREAKING CHANGE: Removed support for Python 3.8
 - BREAKING CHANGE: Removed support for Python 3.9

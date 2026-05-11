@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
 dependencies = [
-    "allianceauth-app-utils>=1.31.0a1",
+    "allianceauth-app-utils>=1.31",
     "allianceauth>=4, <6",
     "importlib_metadata",
     "aiohttp>=3.8",

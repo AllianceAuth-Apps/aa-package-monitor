@@ -19,8 +19,8 @@
 
                 <div class="modal-body">
                     <p>
-                        {% blocktranslate %}
-                            Refreshing data for approx. {{ all_count }} distributions...
+                        {% blocktranslate with display_value=all_count|default:"?" %}
+                            Refreshing data for approx. {{ display_value }} distributions...
                         {% endblocktranslate %}
                     </p>
 
@@ -50,19 +50,19 @@
         <li role="presentation" class="nav-item">
             <a class="nav-link{% if filter != 'current' and filter != 'outdated' and filter != 'unknown' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=all">
                 {% translate "All Packages" %}
-                &nbsp;<span class="badge text-bg-secondary">{{ all_count }}</span>
+                {% if all_count %}&nbsp;<span class="badge text-bg-secondary">{{ all_count }}</span>{% endif%}
             </a>
         </li>
         <li role="presentation" class="nav-item">
             <a class="nav-link{% if filter == 'current' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=current">
                 {% translate "Current" %}
-                &nbsp;<span class="badge text-bg-secondary">{{ current_count }}</span>
+                {% if current_count %}&nbsp;<span class="badge text-bg-secondary">{{ current_count }}</span>{% endif%}
             </a>
         </li>
         <li role="presentation" class="nav-item">
             <a class="nav-link{% if filter == 'outdated' %} active{% endif %}" href="{% url 'package_monitor:index' %}?filter=outdated">
                 {% translate "Update Available" %}
-                {% if outdated_count > 0 %}&nbsp;<span class="badge text-bg-danger">{{ outdated_count }}</span>{% endif%}
+                {% if outdated_count %}&nbsp;<span class="badge text-bg-danger">{{ outdated_count }}</span>{% endif%}
             </a>
         </li>
         <li role="presentation" class="me-auto nav-item">
@@ -70,7 +70,7 @@
                 href="{% url 'package_monitor:index' %}?filter=unknown"
                 title="{% translate 'No information about new release available on PyPI' %}">
                 {% translate 'Unknown packages' %}
-                {% if outdated_count > 0 %}&nbsp;<span class="badge text-bg-secondary">{{ unknown_count }}</span>{% endif%}
+                {% if unknown_count %}&nbsp;<span class="badge text-bg-secondary">{{ unknown_count }}</span>{% endif%}
             </a>
         </li>
         <li role="presentation" class="nav-item">

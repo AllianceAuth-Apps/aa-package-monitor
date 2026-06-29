@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.urls import reverse
 
-from app_utils.testing import create_fake_user, json_response_to_python
+from app_utils.testdata_factories import UserMainFactory
+from app_utils.testing import NoSocketsTestCase, json_response_to_python
 
 from package_monitor import views
 
@@ -15,13 +16,11 @@ MODULE_PATH_MANAGERS = "package_monitor.managers"
 
 @patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_SHOW_ALL_PACKAGES", True)
 @patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_INCLUDE_PACKAGES", [])
-class TestPackageList(TestCase):
+class TestPackageList(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        cls.user = create_fake_user(
-            1001, "Bruce Wayne", permissions=["package_monitor.basic_access"]
-        )
+        cls.user = UserMainFactory(permissions__=["package_monitor.basic_access"])
         cls.factory = RequestFactory()
 
     def test_index_view(self):

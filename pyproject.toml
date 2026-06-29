@@ -25,10 +25,10 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
 dependencies = [
-    "allianceauth-app-utils>=1.31",
-    "allianceauth>=4, <6",
+    "allianceauth-app-utils>=1.33",
+    "allianceauth>=4,<6",
     "importlib_metadata",
-    "aiohttp>=3.8",
+    "aiohttp>=3.7,<3.14",           # FIXME: workaround for aioreponses issue 289
     "packaging>=22",
     "recurrent>=0.4.1",
     "python-dateutil>=2.9",

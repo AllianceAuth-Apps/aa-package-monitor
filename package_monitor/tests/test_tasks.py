@@ -1,23 +1,24 @@
 import datetime as dt
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.utils.timezone import now
+
+from app_utils.testing import NoSocketsTestCase
 
 from package_monitor import tasks
 
 MODULE_PATH = "package_monitor.tasks"
-UTC = dt.timezone.utc
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 @patch(MODULE_PATH + ".cache.get", spec=True)
 @patch(MODULE_PATH + ".schedule.is_notification_due")
-class TestShouldSendNotifications(TestCase):
+class TestShouldSendNotifications(NoSocketsTestCase):
     def test_should_send_notification_when_due(self, is_notification_due, cache_get):
         # given
         is_notification_due.return_value = True
-        last_report = (dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=UTC),)
+        last_report = dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=dt.timezone.utc)
         cache_get.return_value = last_report
         # when
         with (
@@ -40,7 +41,7 @@ class TestShouldSendNotifications(TestCase):
     ):
         # given
         is_notification_due.return_value = False
-        last_report = (dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=UTC),)
+        last_report = dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=dt.timezone.utc)
         cache_get.return_value = last_report
         # when
         with patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_ENABLED", True):
@@ -60,7 +61,7 @@ class TestShouldSendNotifications(TestCase):
 
 @patch(MODULE_PATH + ".cache.set", spec=True)
 @patch(MODULE_PATH + ".Distribution.objects.send_update_notification")
-class TestSendUpdateNotifications(TestCase):
+class TestSendUpdateNotifications(NoSocketsTestCase):
     def test_can_send_notifications(self, send_update_notification, cache_set):
         # when
         with (
@@ -81,7 +82,7 @@ class TestSendUpdateNotifications(TestCase):
 @patch(MODULE_PATH + ".Distribution")
 @patch(MODULE_PATH + "._should_send_notifications")
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
-class TestUpdateDistributions(TestCase):
+class TestUpdateDistributions(NoSocketsTestCase):
     def test_should_update_and_notify(self, should_send_notifications, Distribution):
         # given
         should_send_notifications.return_value = True

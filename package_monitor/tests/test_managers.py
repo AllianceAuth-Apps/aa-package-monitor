@@ -253,7 +253,7 @@ class TestDistributionBuildInstallCommand(NoSocketsTestCase):
 
 class TestDistributionNotifyUpdates(NoSocketsTestCase):
     def test_can_notify_updates(self):
-        X = namedtuple(
+        Case = namedtuple(
             "X",
             [
                 "shouldNotify",
@@ -266,16 +266,16 @@ class TestDistributionNotifyUpdates(NoSocketsTestCase):
             ],
         )
         cases = [
-            X(True, "1.0.0", "1.0.1", "", False, False, False),
-            X(False, "1.0.0", "1.0.0", "", False, False, False),
-            X(False, "1.0.0", "0.1.0", "", False, False, False),
-            X(False, "1.0.0", "", "", False, False, False),
-            X(False, "", "1.0.0", "", False, False, False),
-            X(False, "1.0.0", "1.0.1", "1.0.1", False, False, False),
-            X(True, "1.0.0", "1.0.2", "1.0.1", False, False, False),
-            X(False, "1.0.0", "1.0.2", "", True, False, False),
-            X(True, "1.0.0", "1.0.2", "", True, True, False),
-            X(True, "1.0.0", "1.0.1", "1.0.1", False, False, True),
+            Case(True, "1.0.0", "1.0.1", "", False, False, False),
+            Case(False, "1.0.0", "1.0.0", "", False, False, False),
+            Case(False, "1.0.0", "0.1.0", "", False, False, False),
+            Case(False, "1.0.0", "", "", False, False, False),
+            Case(False, "", "1.0.0", "", False, False, False),
+            Case(False, "1.0.0", "1.0.1", "1.0.1", False, False, False),
+            Case(True, "1.0.0", "1.0.2", "1.0.1", False, False, False),
+            Case(False, "1.0.0", "1.0.2", "", True, False, False),
+            Case(True, "1.0.0", "1.0.2", "", True, True, False),
+            Case(True, "1.0.0", "1.0.1", "1.0.1", False, False, True),
         ]
         for num, tc in enumerate(cases, 1):
             with self.subTest("test notifications", num=num):

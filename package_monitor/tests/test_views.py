@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from unittest.mock import patch
 
 from django.test import RequestFactory
@@ -14,14 +15,12 @@ MODULE_PATH_VIEWS = "package_monitor.views"
 MODULE_PATH_MANAGERS = "package_monitor.managers"
 
 
-@patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_SHOW_ALL_PACKAGES", True)
-@patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_INCLUDE_PACKAGES", [])
-class TestPackageList(NoSocketsTestCase):
+class TestPackageList_Index(NoSocketsTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        cls.user = UserMainFactory(permissions__=["package_monitor.basic_access"])
         cls.factory = RequestFactory()
+        cls.user = UserMainFactory(permissions__=["package_monitor.basic_access"])
 
     def test_index_view(self):
         # given
@@ -30,7 +29,17 @@ class TestPackageList(NoSocketsTestCase):
         # when
         response = views.index(request)
         # then
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+
+@patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_SHOW_ALL_PACKAGES", True)
+@patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_INCLUDE_PACKAGES", [])
+class TestPackageList_PackageListData(NoSocketsTestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.factory = RequestFactory()
+        cls.user = UserMainFactory(permissions__=["package_monitor.basic_access"])
 
     def test_list_view_all(self):
         # given
@@ -41,7 +50,7 @@ class TestPackageList(NoSocketsTestCase):
         # when
         response = views.package_list_data(request)
         # then
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         package_names = [x["name"] for x in json_response_to_python(response)]
         self.assertListEqual(package_names, ["alpha", "bravo"])
 
@@ -61,7 +70,7 @@ class TestPackageList(NoSocketsTestCase):
         # when
         response = views.package_list_data(request)
         # then
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         package_names = [x["name"] for x in json_response_to_python(response)]
         self.assertListEqual(package_names, ["bravo"])
 
@@ -81,7 +90,7 @@ class TestPackageList(NoSocketsTestCase):
         # when
         response = views.package_list_data(request)
         # then
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         package_names = [x["name"] for x in json_response_to_python(response)]
         self.assertListEqual(package_names, ["alpha"])
 
@@ -96,15 +105,29 @@ class TestPackageList(NoSocketsTestCase):
         # when
         response = views.package_list_data(request)
         # then
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         package_names = [x["name"] for x in json_response_to_python(response)]
         self.assertListEqual(package_names, ["charlie"])
 
+
+@patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_SHOW_ALL_PACKAGES", True)
+@patch(MODULE_PATH_MANAGERS + ".PACKAGE_MONITOR_INCLUDE_PACKAGES", [])
+class TestPackageList_RefreshDistributions(NoSocketsTestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.factory = RequestFactory()
+        cls.user = UserMainFactory(permissions__=["package_monitor.basic_access"])
+
     @patch(MODULE_PATH_VIEWS + ".Distribution.objects.update_all")
     def test_refresh_distributions_view(self, mock_update_all):
+        # given
         mock_update_all.return_value = 1
-
         request = self.factory.get(reverse("package_monitor:refresh_distributions"))
         request.user = self.user
+
+        # when
         response = views.refresh_distributions(request)
-        self.assertEqual(response.status_code, 200)
+
+        # then
+        self.assertEqual(response.status_code, HTTPStatus.OK)

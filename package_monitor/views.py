@@ -61,16 +61,19 @@ def index(request):
 @permission_required("package_monitor.basic_access")
 def package_list_data(request) -> JsonResponse:
     """Return the packages as list in JSON.
-    Specify different subsets with the "filter" GET parameter
+
+    Can optionally specify subsets with the "filter" GET parameter.
+    Will return all packages when filter is not specified or unknown.
     """
     my_filter = request.GET.get(PACKAGE_LIST_FILTER_PARAM, "")
     distributions_qs = Distribution.objects.filter_visible()
-    if my_filter == "outdated":
-        distributions_qs = distributions_qs.filter(is_outdated=True)
-    elif my_filter == "current":
-        distributions_qs = distributions_qs.filter(is_outdated=False)
-    elif my_filter == "unknown":
-        distributions_qs = distributions_qs.filter(is_outdated__isnull=True)
+    match my_filter:
+        case "outdated":
+            distributions_qs = distributions_qs.filter(is_outdated=True)
+        case "current":
+            distributions_qs = distributions_qs.filter(is_outdated=False)
+        case "unknown":
+            distributions_qs = distributions_qs.filter(is_outdated__isnull=True)
 
     data = []
     for dist in distributions_qs.order_by("name"):

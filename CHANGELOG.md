@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [3.0.1] - 2026-06-29
+
+### Fixed
+
+- Tests breaking due to various issues in external libraries
+
 ## [3.0.0] - 2026-05-11
 
 This release is a major update with breaking changes.

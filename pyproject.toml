@@ -40,10 +40,9 @@ dependencies = [
 test = ["coverage", "factory_boy", "requests-mock", "aioresponses"]
 
 [project.urls]
-Homepage = "https://gitlab.com/ErikKalkoken/aa-package-monitor"
-Source = "https://gitlab.com/ErikKalkoken/aa-package-monitor"
-Changelog = "https://gitlab.com/ErikKalkoken/aa-package-monitor/-/blob/master/CHANGELOG.md"
-Tracker = "https://gitlab.com/ErikKalkoken/aa-package-monitor/-/issues"
+Homepage = "https://github.com/AllianceAuth-Apps/aa-package-monitor"
+Source = "https://github.com/AllianceAuth-Apps/aa-package-monitor"
+Tracker = "https://github.com/AllianceAuth-Apps/aa-package-monitor/issues"
 
 [tool.flit.module]
 name = "package_monitor"

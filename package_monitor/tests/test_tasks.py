@@ -7,7 +7,6 @@ from django.utils.timezone import now
 from package_monitor import tasks
 
 MODULE_PATH = "package_monitor.tasks"
-UTC = dt.timezone.utc
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
@@ -17,7 +16,7 @@ class TestShouldSendNotifications(TestCase):
     def test_should_send_notification_when_due(self, is_notification_due, cache_get):
         # given
         is_notification_due.return_value = True
-        last_report = (dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=UTC),)
+        last_report = dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=dt.timezone.utc)
         cache_get.return_value = last_report
         # when
         with (
@@ -40,7 +39,7 @@ class TestShouldSendNotifications(TestCase):
     ):
         # given
         is_notification_due.return_value = False
-        last_report = (dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=UTC),)
+        last_report = dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=dt.timezone.utc)
         cache_get.return_value = last_report
         # when
         with patch(MODULE_PATH + ".PACKAGE_MONITOR_NOTIFICATIONS_ENABLED", True):

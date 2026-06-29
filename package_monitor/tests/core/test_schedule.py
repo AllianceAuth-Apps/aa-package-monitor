@@ -8,76 +8,74 @@ from package_monitor.core.schedule import is_notification_due
 
 MODULE_PATH = "package_monitor.core.schedule"
 
-UTC = dt.timezone.utc
-
 
 class TestSchedule(TestCase):
     def test_should_report_due_when_due(self):
-        X = namedtuple(
+        Case = namedtuple(
             "X", ["schedule_text", "max_delay", "last_report", "now", "result"]
         )
         cases = [
-            X(
+            Case(
                 schedule_text="every day at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 10, 10, 0, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=dt.timezone.utc),
                 result=True,
             ),
-            X(
+            Case(
                 schedule_text="every day at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 10, 5, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 10, 5, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=dt.timezone.utc),
                 result=False,
             ),
-            X(
+            Case(
                 schedule_text="every day at 10:00",
                 max_delay=5400,
                 last_report=None,
-                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=UTC),
+                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=dt.timezone.utc),
                 result=True,
             ),
-            X(
+            Case(
                 schedule_text="",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 10, 5, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 10, 5, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=dt.timezone.utc),
                 result=True,
             ),
-            X(
+            Case(
                 schedule_text="every thursday at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 6, 10, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 6, 10, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=dt.timezone.utc),
                 result=True,
             ),
-            X(
+            Case(
                 schedule_text="every thursday at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 10, 10, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 10, 10, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 10, 0, 1, tzinfo=dt.timezone.utc),
                 result=False,
             ),
-            X(
+            Case(
                 schedule_text="every thursday at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 9, 0, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 10, 1, 0, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 9, 0, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 10, 1, 0, tzinfo=dt.timezone.utc),
                 result=True,
             ),
-            X(
+            Case(
                 schedule_text="every thursday at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 9, 0, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 11, 31, 0, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 9, 0, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 11, 31, 0, tzinfo=dt.timezone.utc),
                 result=False,
             ),
-            X(
+            Case(
                 schedule_text="every thursday at 10:00",
                 max_delay=5400,
-                last_report=dt.datetime(2024, 7, 11, 9, 0, 0, tzinfo=UTC),
-                now=dt.datetime(2024, 7, 11, 9, 59, 0, tzinfo=UTC),
+                last_report=dt.datetime(2024, 7, 11, 9, 0, 0, tzinfo=dt.timezone.utc),
+                now=dt.datetime(2024, 7, 11, 9, 59, 0, tzinfo=dt.timezone.utc),
                 result=False,
             ),
         ]
